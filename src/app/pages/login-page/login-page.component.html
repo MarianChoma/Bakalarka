@@ -1,0 +1,33 @@
+<div class="centered-content">
+  <div class="white-box">
+    <h1 class="title has-text-primary">Prihlásenie</h1>
+    <div class="field">
+      <p class="control has-icons-left has-icons-right">
+        <input #clubInput class="input has-background-light" type="email" placeholder="Email">
+        <span class="icon is-small is-left">
+      <i class="fas fa-envelope"></i>
+    </span>
+      </p>
+    </div>
+    <div class="field">
+      <p class="control has-icons-left">
+        <input #pwInput class="input has-background-light" type="password" placeholder="Password">
+        <span class="icon is-small is-left">
+      <i class="fas fa-lock"></i>
+    </span>
+      </p>
+    </div>
+    <div class="field is-pulled-right">
+      <div class="buttons">
+        <p class="control">
+          <button class="button is-success has-text-primary has-background-light" routerLink="/signup">
+            Registrácia
+          </button>
+          <button class="button is-success has-text-white" (click)="onLoginButtonClick(clubInput.value, pwInput.value)">
+            Prihlásiť
+          </button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
