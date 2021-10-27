@@ -5,10 +5,11 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
 
-const jwtSecret = "51778657246321226641ofiosdjknczxknadhfj7148924065";
+// JWT Secret
+const jwtSecret = "51778657246321226641fsdklafjasdkljfsklfjd7148924065";
 
 const UserSchema = new mongoose.Schema({
-    club:{
+    email: {
         type: String,
         required: true,
         minlength: 1,
@@ -32,6 +33,9 @@ const UserSchema = new mongoose.Schema({
     }]
 });
 
+
+// *** Instance methods ***
+
 UserSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
@@ -48,6 +52,7 @@ UserSchema.methods.generateAccessAuthToken = function () {
             if (!err) {
                 resolve(token);
             } else {
+                // there is an error
                 reject();
             }
         })
@@ -61,10 +66,8 @@ UserSchema.methods.generateRefreshAuthToken = function () {
             if (!err) {
                 // no error
                 let token = buf.toString('hex');
+
                 return resolve(token);
-            }
-            else{
-                reject();
             }
         })
     })
@@ -84,10 +87,15 @@ UserSchema.methods.createSession = function () {
     })
 }
 
-/*MODEL METHODS*/
+
+
+/* MODEL METHODS (static methods) */
+
 UserSchema.statics.getJWTSecret = () => {
     return jwtSecret;
 }
+
+
 
 UserSchema.statics.findByIdAndToken = function (_id, token) {
     // finds user by id and token
@@ -101,9 +109,10 @@ UserSchema.statics.findByIdAndToken = function (_id, token) {
     });
 }
 
-UserSchema.statics.findByCredentials = function (club, password) {
+
+UserSchema.statics.findByCredentials = function (email, password) {
     let User = this;
-    return User.findOne({ club }).then((user) => {
+    return User.findOne({ email }).then((user) => {
         if (!user) return Promise.reject();
 
         return new Promise((resolve, reject) => {
@@ -119,14 +128,20 @@ UserSchema.statics.findByCredentials = function (club, password) {
     })
 }
 
-
 UserSchema.statics.hasRefreshTokenExpired = (expiresAt) => {
     let secondsSinceEpoch = Date.now() / 1000;
-    return expiresAt <= secondsSinceEpoch;
+    if (expiresAt > secondsSinceEpoch) {
+        // hasn't expired
+        return false;
+    } else {
+        // has expired
+        return true;
+    }
 }
 
 
-/*Middleware*/
+/* MIDDLEWARE */
+// Before a user document is saved, this code runs
 UserSchema.pre('save', function (next) {
     let user = this;
     let costFactor = 10;
@@ -146,8 +161,8 @@ UserSchema.pre('save', function (next) {
     }
 });
 
-/*HELPER METHODS */
 
+/* HELPER METHODS */
 let saveSessionToDatabase = (user, refreshToken) => {
     // Save session to database
     return new Promise((resolve, reject) => {

@@ -1,15 +1,16 @@
 const express=require('express');
 const app= express();
+
+const {User} = require('./db/models/user.model');
+const jwt = require('jsonwebtoken');
+
 const {mongoose} = require('./db/mongoose');
-const jwt = require("jsonwebtoken");
-const {User} = require("./db/models/user.model");
 
 const bodyParser = require("body-parser");
 
 app.use(bodyParser.json());
 
-/*Middleware*/
-
+//CORS header middleware
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, POST, HEAD, OPTIONS, PUT, PATCH, DELETE");
@@ -22,7 +23,11 @@ app.use(function (req, res, next) {
 
     next();
 });
+//app.use('/users', userRouter);
 
+
+
+/*Middleware*/
 
 let authenticate=(req,res,next)=>{
     let token= req.header('x-access-token');
@@ -38,6 +43,53 @@ let authenticate=(req,res,next)=>{
         }
     });
 }
+
+
+let verifySession= (req,res,next)=>{
+    let refreshToken= req.header('x-refresh-token');
+
+    let _id=req.header('_id');
+
+    User.findByIdAndToken(_id,refreshToken).then((user)=>{
+        if(!user){
+            return Promise.reject({
+                'error': 'User not found. Make sure that refresh token and user id are correct'
+            });
+        }
+
+        req.user_id=user._id;
+        req.userObject=user;
+        req.refreshToken=refreshToken;
+        let isSessionValid=false;
+
+        user.sessions.forEach((session)=>{
+            if(session.token===refreshToken){
+                if(User.hasRefreshTokenExpired(session.expiresAt===false)){
+                    //refresh token has not expired
+                    isSessionValid=true;
+                }
+            }
+        })
+        if(isSessionValid){
+            // call next to continue with webrequest
+            next();
+        }
+        else{
+            return Promise.reject({
+                'error': 'RefreshToken has expired or session is invalid'
+            }).catch((e)=>{
+                res.status(401).send(e);
+            });
+        }
+    });
+}
+
+/*End Middleware*/
+
+/**
+ * Post /users
+ * sing up
+ */
 
 app.post('/users', (req, res) => {
     // User sign up
@@ -67,10 +119,13 @@ app.post('/users', (req, res) => {
 })
 
 
+/**
+ * POST /users/login
+ * Purpose: Login
+ */
 app.post('/users/login', (req, res) => {
-    let email = req.body.club;
+    let email = req.body.email;
     let password = req.body.password;
-
 
     User.findByCredentials(email, password).then((user) => {
         return user.createSession().then((refreshToken) => {
@@ -93,14 +148,53 @@ app.post('/users/login', (req, res) => {
     });
 })
 
+/**
+ * Get user/me/access-token
+ * generate and return accesToken
+ */
+app.get('/users/me/access-token', verifySession,(req,res)=>{
+    req.userObject.generateAccessAuthToken().then((accessToken)=>{
+        res.header('x-access-token',accessToken).send({accessToken});
+    }).catch((e)=>{
+        res.status(400).send(e);
+    })
+})
+/**
+ * Get /users/all
+ * Purpose: get all users
+ */
 app.get('/users/all',(req,res)=>{
-    User.find({}).then((users) => {
+    User.find({}).then((users)=>{
         res.send(users);
-    }).catch((e) => {
-        res.send(e);
-    });
+    })
 })
 
+
+var SomeModel = require("./db/models/teams.model");
+/**
+ * Det all teams
+ */
+app.get('/teams',(req,res)=>{
+    SomeModel.find({}).then((teams)=>{
+        res.send(teams);
+    })
+})
+/**
+ * find team by name
+ */
+app.post('/teams', authenticate, (req,res)=>{
+    SomeModel.findOne({
+        nazov: req.body.nazov
+    }).then((team)=>{
+        res.send(team);
+    }).catch((e)=>{
+        res.send(e);
+    });
+});
+
+app.get('/home',authenticate,(req,res)=>{
+
+})
 
 app.listen(3000, () =>{
     console.log('Server is listening on port 3000');
