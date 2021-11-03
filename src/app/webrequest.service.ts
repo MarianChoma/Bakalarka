@@ -10,9 +10,7 @@ export class WebrequestService {
   constructor(private http:HttpClient) {
     this.ROOT_URL='http://localhost:3000';
   }
-  get(uri: string){
-    return this.http.get(`${this.ROOT_URL}/${uri}`);
-  }
+
   post(uri:string, payLoad: Object){
     return this.http.post(`${this.ROOT_URL}/${uri}`,payLoad);
   }
@@ -34,5 +32,6 @@ export class WebrequestService {
       observe: 'response'
     });
   }
+
 
 }

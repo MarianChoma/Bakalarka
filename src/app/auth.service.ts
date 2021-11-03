@@ -11,6 +11,10 @@ export class AuthService {
 
   constructor(private webService: WebrequestService, private router: Router, private http: HttpClient) { }
 
+  post(){
+
+  }
+
   login(email: string, password: string) {
     return this.webService.login(email, password).pipe(
       shareReplay(),
@@ -35,7 +39,6 @@ export class AuthService {
 
   logout() {
     this.removeSession();
-
     this.router.navigate(['/login']);
   }
 
