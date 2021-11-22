@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthService} from "../../auth.service";
 import {HttpResponse} from "@angular/common/http";
 import {WebrequestService} from "../../webrequest.service";
 import {TeamsService} from "../../teams.service";
+import {catchError, first, shareReplay, take} from "rxjs/operators";
+import {Subscriber} from "rxjs";
 
 @Component({
   selector: 'app-main-page',
@@ -11,14 +13,20 @@ import {TeamsService} from "../../teams.service";
 })
 export class MainPageComponent implements OnInit {
 
-  constructor(private teamService: TeamsService, private authService: AuthService) {
+
+  constructor(private teamService: TeamsService, private authService: AuthService, private webRequest: WebrequestService) {
   }
 
   ngOnInit(): void {
+    this.authService.auth('home').subscribe((e) => {
+      console.log(e);
+    });
+    this.inputEmail();
   }
 
-  compareClubInput(nazov:string){
-    this.teamService.compareClub(nazov).subscribe((team)=>{
+  compareClubInput(nazov: string) {
+    const nazovUp = nazov.toUpperCase();
+    this.teamService.compareClub(nazovUp).subscribe((team) => {
       console.log(team);
     });
   }
@@ -27,7 +35,16 @@ export class MainPageComponent implements OnInit {
     this.authService.logout();
   }
 
-  inputID(){
-    return this.authService.getUserId();
+  inputEmail() {
+    const id = localStorage.getItem("user-id");
+    let help;
+    this.webRequest.getEmail(id).subscribe((email) => {
+      help=JSON.stringify(email)
+      const help2=JSON.parse(help);
+
+      console.log(help);
+      console.log(help2["email"]);
+      document.getElementById("email").setAttribute('placeholder', `${help2["email"]}`);
+    });
   }
 }

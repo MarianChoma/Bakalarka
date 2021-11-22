@@ -11,9 +11,9 @@ export class AuthService {
 
   constructor(private webService: WebrequestService, private router: Router, private http: HttpClient) { }
 
-  post(){
-
-  }
+ auth(uri: string){
+    return this.webService.homeAuthenticate(uri);
+ }
 
   login(email: string, password: string) {
     return this.webService.login(email, password).pipe(
