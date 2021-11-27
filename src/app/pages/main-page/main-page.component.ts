@@ -3,7 +3,7 @@ import {AuthService} from "../../auth.service";
 import {HttpResponse} from "@angular/common/http";
 import {WebrequestService} from "../../webrequest.service";
 import {TeamsService} from "../../teams.service";
-import {catchError, first, shareReplay, take} from "rxjs/operators";
+import {catchError, first, mergeScan, shareReplay, take} from "rxjs/operators";
 import {Subscriber} from "rxjs";
 
 @Component({
@@ -24,10 +24,10 @@ export class MainPageComponent implements OnInit {
     this.inputEmail();
   }
 
-  compareClubInput(nazov: string) {
-    const nazovUp = nazov.toUpperCase();
-    this.teamService.compareClub(nazovUp).subscribe((team) => {
-      console.log(team);
+  signToCup(team: string){
+    const nazovUp = team.toUpperCase();
+    return this.webRequest.sigUpTeamsToCup(nazovUp).subscribe((meassage)=>{
+      console.log(meassage)
     });
   }
 
@@ -39,12 +39,13 @@ export class MainPageComponent implements OnInit {
     const id = localStorage.getItem("user-id");
     let help;
     this.webRequest.getEmail(id).subscribe((email) => {
+      console.log(email);
       help=JSON.stringify(email)
       const help2=JSON.parse(help);
 
       console.log(help);
       console.log(help2["email"]);
-      document.getElementById("email").setAttribute('placeholder', `${help2["email"]}`);
+      document.getElementById("email").setAttribute('placeholder', `${email["email"]}`);
     });
   }
 }

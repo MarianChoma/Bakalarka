@@ -8,13 +8,15 @@ import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { SignupPageComponent } from './pages/signup-page/signup-page.component';
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import {WebReqInterceptor} from "./web-req.interceptor";
+import { TeamViewComponent } from './pages/team-view/team-view.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginPageComponent,
     SignupPageComponent,
-    MainPageComponent
+    MainPageComponent,
+    TeamViewComponent
   ],
   imports: [
     BrowserModule,

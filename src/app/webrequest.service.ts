@@ -22,9 +22,7 @@ export class WebrequestService {
   getEmail(id:string){
     return this.http.post(`${this.ROOT_URL}/users/email`,{
         "id":id
-    })/*.subscribe((email)=>{
-      console.log(email);
-    });*/
+    })
   }
 
 
@@ -45,6 +43,9 @@ export class WebrequestService {
       observe: 'response'
     });
   }
-
-
+  sigUpTeamsToCup(nazov: string){
+    return this.http.patch(`${this.ROOT_URL}/teams`,{
+      "nazov": nazov
+    })
+  }
 }
