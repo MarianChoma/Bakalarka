@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {catchError} from "rxjs/operators";
+import {catchError, switchMap} from "rxjs/operators";
+import {empty} from "rxjs/internal/Observer";
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,10 @@ export class WebrequestService {
 
   post(uri:string, payLoad: Object){
     return this.http.post(`${this.ROOT_URL}/${uri}`,payLoad);
+  }
+
+  get(uri:string){
+    return this.http.get(`${this.ROOT_URL}/${uri}`);
   }
 
   getEmail(id:string){
@@ -43,8 +48,10 @@ export class WebrequestService {
       observe: 'response'
     });
   }
-  sigUpTeamsToCup(nazov: string){
-    return this.http.patch(`${this.ROOT_URL}/teams`,{
+
+
+  sigUpTeamsToCup(nazov: string) {
+    return this.http.patch(`${this.ROOT_URL}/teams`, {
       "nazov": nazov
     })
   }

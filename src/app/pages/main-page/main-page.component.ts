@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from "../../auth.service";
-import {HttpResponse} from "@angular/common/http";
+import {HttpErrorResponse, HttpRequest, HttpResponse} from "@angular/common/http";
 import {WebrequestService} from "../../webrequest.service";
 import {TeamsService} from "../../teams.service";
 import {catchError, first, mergeScan, shareReplay, take} from "rxjs/operators";
@@ -14,7 +14,7 @@ import {Subscriber} from "rxjs";
 export class MainPageComponent implements OnInit {
 
 
-  constructor(private teamService: TeamsService, private authService: AuthService, private webRequest: WebrequestService) {
+  constructor(private authService: AuthService, private webRequest: WebrequestService) {
   }
 
   ngOnInit(): void {
@@ -24,11 +24,24 @@ export class MainPageComponent implements OnInit {
     this.inputEmail();
   }
 
-  signToCup(team: string){
+  signToCup(team: string) {
     const nazovUp = team.toUpperCase();
-    return this.webRequest.sigUpTeamsToCup(nazovUp).subscribe((meassage)=>{
-      console.log(meassage)
-    });
+    const c = this.webRequest.sigUpTeamsToCup(nazovUp)
+    c.subscribe(data => {
+        console.log(data)
+      },
+      error => {
+        let errormessage = document.getElementById("errormessage")
+        if (error.status === 404) {
+          errormessage.innerHTML = "nesprávny názov týmu"
+          document.getElementsByClassName("container")[0].appendChild(errormessage);
+        } else {
+
+          errormessage.innerHTML=''
+          document.getElementsByClassName("container")[0].appendChild(errormessage);
+          console.log(1)
+        }
+      })
   }
 
   onLogoutButtonClick() {
@@ -40,8 +53,8 @@ export class MainPageComponent implements OnInit {
     let help;
     this.webRequest.getEmail(id).subscribe((email) => {
       console.log(email);
-      help=JSON.stringify(email)
-      const help2=JSON.parse(help);
+      help = JSON.stringify(email)
+      const help2 = JSON.parse(help);
 
       console.log(help);
       console.log(help2["email"]);

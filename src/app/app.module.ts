@@ -9,6 +9,8 @@ import { SignupPageComponent } from './pages/signup-page/signup-page.component';
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import {WebReqInterceptor} from "./web-req.interceptor";
 import { TeamViewComponent } from './pages/team-view/team-view.component';
+import { InfoPageComponent } from './pages/info-page/info-page.component';
+import { TeamInCupViewComponent } from './pages/team-in-cup-view/team-in-cup-view.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { TeamViewComponent } from './pages/team-view/team-view.component';
     LoginPageComponent,
     SignupPageComponent,
     MainPageComponent,
-    TeamViewComponent
+    TeamViewComponent,
+    InfoPageComponent,
+    TeamInCupViewComponent
   ],
   imports: [
     BrowserModule,
