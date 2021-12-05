@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import {AuthService} from "../../auth.service";
+import {WebrequestService} from "../../webrequest.service";
 
 @Component({
   selector: 'app-team-in-cup-view',
@@ -6,10 +8,18 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./team-in-cup-view.component.scss']
 })
 export class TeamInCupViewComponent implements OnInit {
-
-  constructor() { }
+  lists;
+  constructor(private authService:AuthService, private webReq:WebrequestService) { }
 
   ngOnInit(): void {
+    this.webReq.get('teams/cup').subscribe((list: any)=>{
+      this.lists=list;
+    });
   }
+  onLogoutButtonClick() {
+    this.authService.logout();
+  }
+
+
 
 }

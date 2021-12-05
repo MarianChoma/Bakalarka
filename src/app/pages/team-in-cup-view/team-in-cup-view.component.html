@@ -1,1 +1,42 @@
-<p>team-in-cup-view works!</p>
+<header>
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item">
+        <h1>Super Cup</h1>
+      </a>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <button class="button is-success has-text-white" (click)="onLogoutButtonClick()">
+          Odhlasit
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="tabs is-fullwidth">
+    <ul>
+      <li>
+        <a routerLink="/home/info">
+          <span class="icon"><i class="fas fa-angle-left" aria-hidden="true"></i></span>
+          <span>Informácie o súaži</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/home">
+          <span class="icon"><i class="fas fa-angle-up" aria-hidden="true"></i></span>
+          <span>Up</span>
+        </a>
+      </li>
+      <li class="is-active">
+        <a>
+          <span>Right</span>
+          <span class="icon"><i class="fas fa-angle-right" aria-hidden="true"></i></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</header>
+<div class="container" *ngFor="let team of lists">
+  <h2>{{team.nazov}}</h2>
+  <h3>{{team.liga}}</h3>
+</div>

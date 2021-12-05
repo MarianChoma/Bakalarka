@@ -11,6 +11,9 @@ export class InfoPageComponent implements OnInit {
   constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
+    this.authService.auth('home').subscribe((e) => {
+      console.log(e);
+    });
   }
   onLogoutButtonClick() {
     this.authService.logout();

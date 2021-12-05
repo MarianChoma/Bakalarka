@@ -30,7 +30,7 @@
       </a>
     </li>
     <li>
-      <a>
+      <a routerLink="/home/teams">
         <span>Right</span>
         <span class="icon"><i class="fas fa-angle-right" aria-hidden="true"></i></span>
       </a>
@@ -41,17 +41,11 @@
 <div class="container">
 
   <div class="control">
-    <div class="columns is-desktop is-vcentered">
-      <div class="column">
+    <div class="columns is-multiline is-vcentered">
+      <div class="column is-half">
         <h2>Liga:</h2>
-        <br>
-        <h2>Názov klubu:</h2>
-        <br>
-        <h2>Email:</h2>
-        <br>
-        <h2>Poštová adresa:</h2>
       </div>
-      <div class="column">
+      <div class="column is-half">
         <div class="control has-icons-left">
           <div class="select">
             <select>
@@ -65,15 +59,26 @@
             </div>
           </div>
         </div>
-        <br>
-        <input #NazovInput class="input is-medium" type="text" placeholder="Názov futbalového klubu">
-        <input id="email" class="input is-medium" type="text" placeholder="" disabled>
-        <br>
-        <input id="adress" class="input is-medium" type="text" placeholder="Adresa">
       </div>
-    </div>
-
-
+        <div class="column is-half">
+          <h2>Názov klubu:</h2>
+        </div>
+        <div class="column is-half">
+          <input #NazovInput class="input is-medium" type="text" placeholder="Názov futbalového klubu">
+        </div>
+        <div class="column is-half">
+          <h2>Email:</h2>
+        </div>
+        <div class="column is-half">
+          <input id="email" class="input is-medium" type="text" placeholder="" disabled>
+        </div>
+        <div class="column is-half">
+          <h2>Poštová adresa:</h2>
+        </div>
+        <div class="column is-half">
+          <input id="adress" class="input is-medium" type="text" placeholder="Adresa">
+        </div>
+      </div>
 
 
 
