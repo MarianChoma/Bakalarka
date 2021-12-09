@@ -13,7 +13,12 @@ export class TeamViewComponent implements OnInit {
 
   ngOnInit(): void {
    this.webRequest.get('teams/cup').subscribe(list=>{
-     this.lists=list
+     if(list["length"]!==0){
+       this.lists=list
+     }
+    else{
+      this.lists=undefined
+     }
    })
   }
 

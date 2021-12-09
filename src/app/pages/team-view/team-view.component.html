@@ -1,5 +1,11 @@
-<div class="container" *ngFor="let list of lists">
-  <h1>Názov klubu: {{list.nazov}}</h1>
-  <h2>Liga: {{list.liga}}</h2>
-  <br>
+<div *ngIf="lists">
+  <div class="teams" *ngFor="let list of lists">
+    <div class="team-container">
+      <h1>Názov klubu: {{list.nazov}}</h1>
+      <h2>Liga: {{list.liga}}</h2>
+    </div>
+  </div>
+</div>
+<div *ngIf="!lists">
+  <h3 class="empty-state-text">Ešte nie sú prihlásené žiadne tímy do turnaja.</h3>
 </div>

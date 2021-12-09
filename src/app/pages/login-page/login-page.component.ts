@@ -19,7 +19,7 @@ export class LoginPageComponent implements OnInit {
   onLoginButtonClick(email: string, password: string) {
     this.authService.login(email, password).subscribe((res: HttpResponse<any>) =>{
       if(res.status===200){
-        this.router.navigate(['/home']);
+        this.router.navigate(['/home/info']);
       }
       console.log(res);
     });

@@ -1,10 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from "../../auth.service";
-import {HttpErrorResponse, HttpRequest, HttpResponse} from "@angular/common/http";
 import {WebrequestService} from "../../webrequest.service";
-import {TeamsService} from "../../teams.service";
-import {catchError, first, mergeScan, shareReplay, take} from "rxjs/operators";
-import {Subscriber} from "rxjs";
+import {Email} from "../../../assets/smtp";
+
 
 @Component({
   selector: 'app-main-page',
@@ -12,6 +10,15 @@ import {Subscriber} from "rxjs";
   styleUrls: ['./main-page.component.scss']
 })
 export class MainPageComponent implements OnInit {
+  selectedOptions: string;
+
+  items =[
+    {value: '3. liga', name: '3. liga'},
+    {value: '4. liga', name: '4. liga'},
+    {value: '5. liga', name: '5. liga'},
+    {value: '1. trieda', name: '1. trieda'},
+    {value: '2. trieda', name: '2. trieda'},
+  ]
 
 
   constructor(private authService: AuthService, private webRequest: WebrequestService) {
@@ -24,6 +31,37 @@ export class MainPageComponent implements OnInit {
     this.inputEmail();
   }
 
+  onSubmit() {
+
+    Email.send({
+      SecureToken: "18afb8fe-566a-4e34-83ac-b8903cc19182 ",
+      To: 'slovakcup.sk@gmail.com',
+      From: "slovakcup.sk@gmail.com",
+      Subject: "Prihlásenie do Slovak Cup",
+      Body: `
+      <h2>Prihlásený nový team</h2><br>
+      <p>
+      <b>Názov teamu:</b> ${(<HTMLInputElement>document.getElementById('team')).value}<br>
+      <b>Liga:</b> ${this.selectedOptions}<br>
+      <b>Email:</b> ${(<HTMLInputElement>document.getElementById('email')).value}<br>
+      <b>Poštová adresa:</b> ${(<HTMLInputElement>document.getElementById('adress')).value}
+       </p>`
+    })
+//189596
+    Email.send({
+      SecureToken: "18afb8fe-566a-4e34-83ac-b8903cc19182 ",
+      To: 'xchoma@stuba.sk',//`${(<HTMLInputElement>document.getElementById('email')).value}`,
+      From: "slovakcup.sk@gmail.com",
+      Subject: "Prihlásenie do Slovak Cup",
+      Body: `
+      <h2>Váš tím ${(<HTMLInputElement>document.getElementById('team')).value} bol úspešne prihlásený do Slovak Cupu.</h2><br>
+
+      <p>Budeme Vás kontaktovať ak prebehne losovanie a oznámíme Vám súpera v prvom kole.<br>
+      V prípade ďalších otázok nás neváhajte kontaktovať na slovakcup.sk@gmail.com.</p>
+      `
+    })
+  }
+
   signToCup(team: string) {
     const nazovUp = team.toUpperCase();
     const c = this.webRequest.sigUpTeamsToCup(nazovUp)
@@ -34,12 +72,11 @@ export class MainPageComponent implements OnInit {
         let errormessage = document.getElementById("errormessage")
         if (error.status === 404) {
           errormessage.innerHTML = "nesprávny názov týmu"
-          document.getElementsByClassName("container")[0].appendChild(errormessage);
+          document.getElementById("error-container").appendChild(errormessage);
         } else {
-
-          errormessage.innerHTML=''
-          document.getElementsByClassName("container")[0].appendChild(errormessage);
-          console.log(1)
+          this.onSubmit()
+          errormessage.innerHTML = ''
+          document.getElementById("error-container").appendChild(errormessage);
         }
       })
   }
@@ -50,15 +87,10 @@ export class MainPageComponent implements OnInit {
 
   inputEmail() {
     const id = localStorage.getItem("user-id");
-    let help;
     this.webRequest.getEmail(id).subscribe((email) => {
-      console.log(email);
-      help = JSON.stringify(email)
-      const help2 = JSON.parse(help);
-
-      console.log(help);
-      console.log(help2["email"]);
       document.getElementById("email").setAttribute('placeholder', `${email["email"]}`);
+      (<HTMLInputElement>document.getElementById('email')).value = email["email"];
+
     });
   }
 }

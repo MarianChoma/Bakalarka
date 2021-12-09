@@ -2,7 +2,7 @@
   <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item">
-        <h1>Super Cup</h1>
+        <h1 class="title">Slovak Cup</h1>
       </a>
     </div>
     <div class="navbar-end">
@@ -19,20 +19,20 @@
   <ul>
     <li>
       <a routerLink="/home/info">
-        <span class="icon"><i class="fas fa-angle-left" aria-hidden="true"></i></span>
+        <!--<span class="icon"><i class="fas fa-angle-left" aria-hidden="true"></i></span>-->
         <span>Informácie o súaži</span>
       </a>
     </li>
     <li class="is-active">
       <a>
-        <span class="icon"><i class="fas fa-angle-up" aria-hidden="true"></i></span>
-        <span>Up</span>
+        <!--<span class="icon"><i class="fas fa-angle-up" aria-hidden="true"></i></span>-->
+        <span>Prihlásenie do súťaže</span>
       </a>
     </li>
     <li>
       <a routerLink="/home/teams">
-        <span>Right</span>
-        <span class="icon"><i class="fas fa-angle-right" aria-hidden="true"></i></span>
+        <span>Prihlásené tímy</span>
+        <!--<span class="icon"><i class="fas fa-angle-right" aria-hidden="true"></i></span>-->
       </a>
     </li>
   </ul>
@@ -41,39 +41,41 @@
 <div class="container">
 
   <div class="control">
-    <div class="columns is-multiline is-vcentered">
-      <div class="column is-half">
-        <h2>Liga:</h2>
-      </div>
-      <div class="column is-half">
-        <div class="control has-icons-left">
-          <div class="select">
-            <select>
-              <option selected>Futbalová liga</option>
-              <option>3. liga</option>
-              <option>4. liga</option>
-              <option>5. liga</option>
-            </select>
-            <div class="icon is-small is-left">
-              <i class="fas fa-futbol"></i>
+      <div class="columns is-multiline is-vcentered">
+        <div class="column is-half">
+          <h2><b>Liga:</b></h2>
+        </div>
+        <div class="column is-half">
+          <div class="control has-icons-left">
+            <div class="select">
+              <select [(ngModel)]="selectedOptions">
+                <option selected disabled>Vyberte Ligu</option>
+                <option *ngFor="let i of items">
+                  {{i.name}}
+                </option>
+              </select>
+              <div class="icon is-small is-left">
+                <i class="fas fa-futbol"></i>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+
         <div class="column is-half">
-          <h2>Názov klubu:</h2>
+          <h2><b>Názov klubu:</b></h2>
+        </div>
+        <div id="error-container" class="column is-half">
+          <input #NazovInput class="input is-medium" id="team" type="text" placeholder="Názov futbalového klubu">
+          <p id="errormessage"></p>
         </div>
         <div class="column is-half">
-          <input #NazovInput class="input is-medium" type="text" placeholder="Názov futbalového klubu">
+          <h2><b>Email:</b></h2>
         </div>
         <div class="column is-half">
-          <h2>Email:</h2>
+          <input id="email" class="input is-medium" type="text" placeholder="">
         </div>
         <div class="column is-half">
-          <input id="email" class="input is-medium" type="text" placeholder="" disabled>
-        </div>
-        <div class="column is-half">
-          <h2>Poštová adresa:</h2>
+          <h2><b>Poštová adresa:</b></h2>
         </div>
         <div class="column is-half">
           <input id="adress" class="input is-medium" type="text" placeholder="Adresa">
@@ -81,11 +83,11 @@
       </div>
 
 
+      <button class="button is-success has-text-white" value="Send Mail" (click)="signToCup(NazovInput.value)">
+        Prihlásiť do súťaže
+      </button>
 
-    <button class="button is-success has-text-white" (click)="signToCup(NazovInput.value)">
-      Prihlásiť do súťaže
-    </button>
-    <p id="errormessage"></p>
+
   </div>
 
 </div>

@@ -11,6 +11,7 @@ import {WebReqInterceptor} from "./web-req.interceptor";
 import { TeamViewComponent } from './pages/team-view/team-view.component';
 import { InfoPageComponent } from './pages/info-page/info-page.component';
 import { TeamInCupViewComponent } from './pages/team-in-cup-view/team-in-cup-view.component';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -22,11 +23,12 @@ import { TeamInCupViewComponent } from './pages/team-in-cup-view/team-in-cup-vie
     InfoPageComponent,
     TeamInCupViewComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        HttpClientModule,
+        FormsModule
+    ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: WebReqInterceptor, multi: true }
   ],
