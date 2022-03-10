@@ -1,7 +1,8 @@
-const express=require('express');
-const app= express();
+const express = require('express');
+const app = express();
 
 const {User} = require('./db/models/user.model');
+var SomeModel = require("./db/models/teams.model");
 const jwt = require('jsonwebtoken');
 
 const {mongoose} = require('./db/mongoose');
@@ -26,58 +27,55 @@ app.use(function (req, res, next) {
 //app.use('/users', userRouter);
 
 
-
 /*Middleware*/
 
-let authenticate=(req,res,next)=>{
-    let token= req.header('x-access-token');
+let authenticate = (req, res, next) => {
+    let token = req.header('x-access-token');
 
-    jwt.verify(token, User.getJWTSecret(), (err, decoded)=>{
-        if(err){
+    jwt.verify(token, User.getJWTSecret(), (err, decoded) => {
+        if (err) {
             //jwt is invalid DO NOT AUTHENTICATE
             res.status(401).send(err);
-        }
-        else{
-            req.user_id= decoded._id;
+        } else {
+            req.user_id = decoded._id;
             next();
         }
     });
 }
 
 
-let verifySession= (req,res,next)=>{
-    let refreshToken= req.header('x-refresh-token');
+let verifySession = (req, res, next) => {
+    let refreshToken = req.header('x-refresh-token');
 
-    let _id=req.header('_id');
+    let _id = req.header('_id');
 
-    User.findByIdAndToken(_id,refreshToken).then((user)=>{
-        if(!user){
+    User.findByIdAndToken(_id, refreshToken).then((user) => {
+        if (!user) {
             return Promise.reject({
                 'error': 'User not found. Make sure that refresh token and user id are correct'
             });
         }
 
-        req.user_id=user._id;
-        req.userObject=user;
-        req.refreshToken=refreshToken;
-        let isSessionValid=false;
+        req.user_id = user._id;
+        req.userObject = user;
+        req.refreshToken = refreshToken;
+        let isSessionValid = false;
 
-        user.sessions.forEach((session)=>{
-            if(session.token===refreshToken){
-                if(User.hasRefreshTokenExpired(session.expiresAt===false)){
+        user.sessions.forEach((session) => {
+            if (session.token === refreshToken) {
+                if (User.hasRefreshTokenExpired(session.expiresAt === false)) {
                     //refresh token has not expired
-                    isSessionValid=true;
+                    isSessionValid = true;
                 }
             }
         })
-        if(isSessionValid){
+        if (isSessionValid) {
             // call next to continue with webrequest
             next();
-        }
-        else{
+        } else {
             return Promise.reject({
                 'error': 'RefreshToken has expired or session is invalid'
-            }).catch((e)=>{
+            }).catch((e) => {
                 res.status(401).send(e);
             });
         }
@@ -105,7 +103,7 @@ app.post('/users', (req, res) => {
 
         return newUser.generateAccessAuthToken().then((accessToken) => {
             // access auth token generated successfully, now we return an object containing the auth tokens
-            return { accessToken, refreshToken }
+            return {accessToken, refreshToken}
         });
     }).then((authTokens) => {
         // Now we construct and send the response to the user with their auth tokens in the header and the user object in the body
@@ -134,7 +132,7 @@ app.post('/users/login', (req, res) => {
 
             return user.generateAccessAuthToken().then((accessToken) => {
                 // access auth token generated successfully, now we return an object containing the auth tokens
-                return { accessToken, refreshToken }
+                return {accessToken, refreshToken}
             });
         }).then((authTokens) => {
             // Now we construct and send the response to the user with their auth tokens in the header and the user object in the body
@@ -152,10 +150,10 @@ app.post('/users/login', (req, res) => {
  * Get user/me/access-token
  * generate and return accesToken
  */
-app.get('/users/me/access-token', verifySession,(req,res)=>{
-    req.userObject.generateAccessAuthToken().then((accessToken)=>{
-        res.header('x-access-token',accessToken).send({accessToken});
-    }).catch((e)=>{
+app.get('/users/me/access-token', verifySession, (req, res) => {
+    req.userObject.generateAccessAuthToken().then((accessToken) => {
+        res.header('x-access-token', accessToken).send({accessToken});
+    }).catch((e) => {
         res.status(400).send(e);
     })
 })
@@ -163,39 +161,81 @@ app.get('/users/me/access-token', verifySession,(req,res)=>{
  * Get /users/all
  * Purpose: get all users
  */
-app.get('/users/all',(req,res)=>{
-    User.find({}).then((users)=>{
+app.get('/users/all', (req, res) => {
+    User.find({}).then((users) => {
         res.send(users);
     })
 })
 
-
-var SomeModel = require("./db/models/teams.model");
 /**
- * Det all teams
+ * Post email by user ID
  */
-app.get('/teams',(req,res)=>{
-    SomeModel.find({}).then((teams)=>{
+app.post('/users/email', (req, res) => {
+    User.findById(
+        req.body.id
+    ).then((user) => {
+        const email = user.email;
+        res.send({"email": email});
+    }).catch((e) => {
+        res.send(e);
+    })
+})
+
+
+/**
+ * Get all teams in database
+ */
+app.get('/teams', (req, res) => {
+    SomeModel.find({}).then((teams) => {
         res.send(teams);
     })
 })
+
+
 /**
- * find team by name
+ * Login team to cup
  */
-app.post('/teams', authenticate, (req,res)=>{
+app.patch('/teams',  (req, res) => {
     SomeModel.findOne({
         nazov: req.body.nazov
-    }).then((team)=>{
-        res.send(team);
-    }).catch((e)=>{
-        res.send(e);
-    });
-});
-
-app.get('/home',authenticate,(req,res)=>{
-
+    }).then((team) => {
+        if (team) {
+            return true;
+        } else {
+            return false;
+        }
+    }).then((canUpdate) => {
+        if (canUpdate) {
+            SomeModel.findOneAndUpdate({
+                    nazov: req.body.nazov
+                }, {
+                    $set: {
+                        prihlasenie: true
+                    }
+                }
+            ).then(
+                res.sendStatus(201)/*send({message: 'Updated'})*/
+            )
+        }else{
+            res.sendStatus(404);
+        }
+    })
+})
+/**
+ *Get all teans in cup
+ */
+app.get('/teams/cup',(req,res)=>{
+    SomeModel.find({
+        prihlasenie: true
+    }).then((teams)=>{
+        res.send(teams);
+    })
 })
 
-app.listen(3000, () =>{
+
+app.get('/home', authenticate, (req, res) => {
+})
+
+app.listen(3000, () => {
     console.log('Server is listening on port 3000');
 });
