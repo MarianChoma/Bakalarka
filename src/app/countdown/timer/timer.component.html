@@ -1,0 +1,14 @@
+<div class="timer">
+
+  <div *ngIf="daysToDday<0">
+    <span>Už sa nie je možné prihlásiť</span>
+  </div>
+  <div *ngIf="daysToDday>=0">
+    <h4> Ukončenie prihlasovania </h4>
+    <span id="days"> {{daysToDday}}d</span>
+    <span id="hours"> {{hoursToDday}}h</span>
+    <span id="minutes"> {{minutesToDday}}m</span>
+    <span id="seconds"> {{secondsToDday}}s</span>
+  </div>
+
+</div>
