@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthService} from "../../auth.service";
 import {HttpResponse} from "@angular/common/http";
+
 
 @Component({
   selector: 'app-signup-page',
@@ -9,15 +10,22 @@ import {HttpResponse} from "@angular/common/http";
 })
 export class SignupPageComponent implements OnInit {
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {
+  }
 
   ngOnInit(): void {
   }
 
-  onSignupButtonClick(email: string, password: string){
-    this.authService.signup(email, password).subscribe((res: HttpResponse<any>) =>{
-      console.log(res);
-    });
+  onSignupButtonClick(email: string, password: string, repeatedPassword: string) {
+    if (password === repeatedPassword) {
+      this.authService.signup(email, password).subscribe((res: HttpResponse<any>) => {
+        console.log(res);
+      });
+      document.getElementById("errorMessage").innerHTML = "Boli ste úspešne zaregistrovaný";
+    } else {
+      document.getElementById("errorMessage").innerHTML = "Nesprávne heslo";
+    }
+
   }
 
 }

@@ -12,6 +12,7 @@ import { TeamViewComponent } from './pages/team-view/team-view.component';
 import { InfoPageComponent } from './pages/info-page/info-page.component';
 import { TeamInCupViewComponent } from './pages/team-in-cup-view/team-in-cup-view.component';
 import {FormsModule} from "@angular/forms";
+import { TimerComponent } from './countdown/timer/timer.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import {FormsModule} from "@angular/forms";
     MainPageComponent,
     TeamViewComponent,
     InfoPageComponent,
-    TeamInCupViewComponent
+    TeamInCupViewComponent,
+    TimerComponent
   ],
     imports: [
         BrowserModule,

@@ -50,15 +50,16 @@ export class MainPageComponent implements OnInit {
 //189596
     Email.send({
       SecureToken: "18afb8fe-566a-4e34-83ac-b8903cc19182 ",
-      To: 'xchoma@stuba.sk',//`${(<HTMLInputElement>document.getElementById('email')).value}`,
+      To: `${(<HTMLInputElement>document.getElementById('email')).value}`,
       From: "slovakcup.sk@gmail.com",
       Subject: "Prihlásenie do Slovak Cup",
       Body: `
       <h2>Váš tím ${(<HTMLInputElement>document.getElementById('team')).value} bol úspešne prihlásený do Slovak Cupu.</h2><br>
-
-      <p>Budeme Vás kontaktovať ak prebehne losovanie a oznámíme Vám súpera v prvom kole.<br>
+      <p>Budeme Vás kontaktovať ak prebehne žrebovanie a oznámíme Vám súpera prvého kola.<br>
       V prípade ďalších otázok nás neváhajte kontaktovať na slovakcup.sk@gmail.com.</p>
       `
+    }).then((message)=>{
+      alert(message)
     })
   }
 

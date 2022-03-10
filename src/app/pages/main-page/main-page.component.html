@@ -48,7 +48,7 @@
         <div class="column is-half">
           <div class="control has-icons-left">
             <div class="select">
-              <select [(ngModel)]="selectedOptions">
+              <select [(ngModel)]="selectedOptions" >
                 <option selected disabled>Vyberte Ligu</option>
                 <option *ngFor="let i of items">
                   {{i.name}}
