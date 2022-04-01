@@ -6,7 +6,9 @@ var Schema = mongoose.Schema;
 var SomeModelSchema = new Schema({
     nazov: String,
     liga: String,
-    prihlasenie: Boolean
+    prihlasenie: Boolean,
+    latitude: Number,
+    longitude: Number
 });
 
 //Export function to create "SomeModel" model class

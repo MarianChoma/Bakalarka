@@ -1,14 +1,28 @@
 const express = require('express');
+global.window = {
+    screen: {
+        devicePixelRatio: 1
+    }
+};
+global.document = {
+    documentElement: {
+        style: {}
+    },
+    getElementsByTagName: function() { return []; },
+    createElement: function() { return {}; }
+};
+global.navigator = {
+    userAgent: 'nodejs',
+    platform: 'nodejs'
+};
+global.L = require('leaflet');
+
 const app = express();
-
 const {User} = require('./db/models/user.model');
-var SomeModel = require("./db/models/teams.model");
+const SomeModel = require("./db/models/teams.model");
 const jwt = require('jsonwebtoken');
-
 const {mongoose} = require('./db/mongoose');
-
 const bodyParser = require("body-parser");
-
 app.use(bodyParser.json());
 
 //CORS header middleware
@@ -186,6 +200,7 @@ app.post('/users/email', (req, res) => {
  * Get all teams in database
  */
 app.get('/teams', (req, res) => {
+
     SomeModel.find({}).then((teams) => {
         res.send(teams);
     })
@@ -195,9 +210,10 @@ app.get('/teams', (req, res) => {
 /**
  * Login team to cup
  */
-app.patch('/teams',  (req, res) => {
+app.patch('/teams', (req, res) => {
     SomeModel.findOne({
-        nazov: req.body.nazov
+        nazov: req.body.nazov,
+        liga: req.body.liga
     }).then((team) => {
         if (team) {
             return true;
@@ -216,7 +232,7 @@ app.patch('/teams',  (req, res) => {
             ).then(
                 res.sendStatus(201)/*send({message: 'Updated'})*/
             )
-        }else{
+        } else {
             res.sendStatus(404);
         }
     })
@@ -224,11 +240,61 @@ app.patch('/teams',  (req, res) => {
 /**
  *Get all teans in cup
  */
-app.get('/teams/cup',(req,res)=>{
+app.get('/teams/cup', (req, res) => {
     SomeModel.find({
         prihlasenie: true
-    }).then((teams)=>{
-        res.send(teams);
+    }).then((teams) => {
+        res.send({
+            team: teams
+        });
+    })
+})
+
+app.get('/teams/draw',(req,res)=>{
+    SomeModel.find({
+        prihlasenie: true
+    }).then(teams=>{
+        let powerOfTwo = 2;
+        let i = 1;
+        let teamsInCup=[];
+        let waitingTeams=[];
+
+        const count=teams.length
+
+
+        // const duplicates=teams.filter((t1, index, array)=>{
+        //     return array.some(t2=> {
+        //         if(t1!==t2){
+        //             return  t2.liga===t1.liga
+        //         }
+        //     })
+        // })
+
+
+        //console.log(duplicates)
+        teams.sort((t1,t2)=>{return compareTeamLeague(t1,t2)})
+
+        while (count >= powerOfTwo) {
+            i++;
+            powerOfTwo = Math.pow(2, i);
+        }
+
+        const half=powerOfTwo-count
+        for(let i=count-1; i>half-1;i--){
+            let sameLeague=teams.filter(t=>{
+                return teams[i].liga===t.liga;
+            })
+            let team=sameLeague[Math.floor(Math.random()*sameLeague.length)];
+            teamsInCup.push(team);
+            teams.splice(teams.indexOf(team, half-1),1);
+        }
+        //console.log(teamsDistance(teamsInCup[1], teamsInCup[0]))
+
+        res.send({
+            count: count,
+            teamsInCup: teamsInCup,
+            waitingTeams: teams,
+        })
     })
 })
 
@@ -239,3 +305,58 @@ app.get('/home', authenticate, (req, res) => {
 app.listen(3000, () => {
     console.log('Server is listening on port 3000');
 });
+
+
+function compareTeamLeague(team1,team2){
+    let ligue1, ligue2;
+    switch (team1.liga){
+        case "3. liga":
+            ligue1=5;
+        break;
+        case "4. liga":
+            ligue1=4;
+            break;
+        case "5. liga":
+            ligue1= 3;
+            break;
+        case "1. trieda":
+            ligue1=2;
+            break;
+        case "2. trieda":
+            ligue1=1;
+            break;
+    }
+    switch (team2.liga){
+        case "3. liga":
+            ligue2=5;
+            break;
+        case "4. liga":
+            ligue2=4;
+            break;
+        case "5. liga":
+            ligue2= 3;
+            break;
+        case "1. trieda":
+            ligue2=2;
+            break;
+        case "2. trieda":
+            ligue2=1;
+            break;
+    }
+    return ligue2-ligue1;
+}
+
+function teamsDistance(team1,team2)
+{
+    const from= new L.LatLng(team1.latitude,team1.longitude)
+    const to= new L.LatLng(team2.latitude,team2.longitude)
+
+    return getDistance(from, to);
+}
+
+function getDistance(from, to)
+{
+    return (from.distanceTo(to)).toFixed(0);
+}
+
+
