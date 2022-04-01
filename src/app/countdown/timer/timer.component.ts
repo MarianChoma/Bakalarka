@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, Output} from '@angular/core';
 import {interval, Subscription} from "rxjs";
 
 
@@ -9,10 +9,7 @@ import {interval, Subscription} from "rxjs";
 })
 export class TimerComponent implements OnInit,OnDestroy {
   private subscription: Subscription;
-
-  private dDay = new Date('03 10 2022 17:41:20');
-
-
+  private dDay = new Date('03 21 2022 23:39:20');
   private timeDifference;
   public secondsToDday;
   public minutesToDday;
@@ -21,7 +18,7 @@ export class TimerComponent implements OnInit,OnDestroy {
 
   constructor() { }
 
-  private getTimeDifference () {
+  public getTimeDifference () {
 
       this.timeDifference = this.dDay.getTime() - new  Date().getTime();
       this.allocateTimeUnits(this.timeDifference);

@@ -1,0 +1,27 @@
+.timer{
+  margin-top: 5%;
+  width: 100%;
+}
+.inner{
+  display: table;
+  margin: 0 auto;
+}
+h1 {
+  font-weight: normal;
+  text-align: center;
+  letter-spacing: .125rem;
+  text-transform: uppercase;
+}
+
+li {
+  display: inline-block;
+  font-size: 1.1em;
+  list-style-type: none;
+  padding: 1em;
+  text-transform: uppercase;
+}
+
+li span {
+  display: block;
+  font-size: 3.5rem;
+}

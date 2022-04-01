@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {AuthService} from "../../auth.service";
 import {WebrequestService} from "../../webrequest.service";
 import {Email} from "../../../assets/smtp";
+import {TimerComponent} from "../../countdown/timer/timer.component";
 
 
 @Component({
@@ -21,7 +22,7 @@ export class MainPageComponent implements OnInit {
   ]
 
 
-  constructor(private authService: AuthService, private webRequest: WebrequestService) {
+  constructor(private authService: AuthService, private webRequest: WebrequestService, private timer: TimerComponent) {
   }
 
   ngOnInit(): void {
@@ -47,7 +48,7 @@ export class MainPageComponent implements OnInit {
       <b>Poštová adresa:</b> ${(<HTMLInputElement>document.getElementById('adress')).value}
        </p>`
     })
-//189596
+
     Email.send({
       SecureToken: "18afb8fe-566a-4e34-83ac-b8903cc19182 ",
       To: `${(<HTMLInputElement>document.getElementById('email')).value}`,
@@ -63,23 +64,26 @@ export class MainPageComponent implements OnInit {
     })
   }
 
-  signToCup(team: string) {
-    const nazovUp = team.toUpperCase();
-    const c = this.webRequest.sigUpTeamsToCup(nazovUp)
-    c.subscribe(data => {
-        console.log(data)
-      },
-      error => {
-        let errormessage = document.getElementById("errormessage")
-        if (error.status === 404) {
-          errormessage.innerHTML = "nesprávny názov týmu"
-          document.getElementById("error-container").appendChild(errormessage);
-        } else {
-          this.onSubmit()
-          errormessage.innerHTML = ''
-          document.getElementById("error-container").appendChild(errormessage);
-        }
-      })
+  signToCup(team: string, liga: string) {
+    if(this.timer["dDay"].getTime() - new  Date().getTime()>0) {
+
+      const nazovUp = team.toUpperCase();
+      const c = this.webRequest.sigUpTeamsToCup(nazovUp, liga)
+      c.subscribe(data => {
+          console.log(data)
+        },
+        error => {
+          let errormessage = document.getElementById("errormessage")
+          if (error.status === 404) {
+            errormessage.innerHTML = "nesprávny názov týmu alebo ligy"
+            document.getElementById("error-container").appendChild(errormessage);
+          } else {
+            this.onSubmit()
+            errormessage.innerHTML = ''
+            document.getElementById("error-container").appendChild(errormessage);
+          }
+        })
+    }
   }
 
   onLogoutButtonClick() {

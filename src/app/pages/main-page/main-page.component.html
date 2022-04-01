@@ -46,9 +46,9 @@
           <h2><b>Liga:</b></h2>
         </div>
         <div class="column is-half">
-          <div class="control has-icons-left">
+          <div class="control has-icons-left" id="selectBox">
             <div class="select">
-              <select [(ngModel)]="selectedOptions" >
+              <select #ligaSelect [(ngModel)]="selectedOptions" >
                 <option selected disabled>Vyberte Ligu</option>
                 <option *ngFor="let i of items">
                   {{i.name}}
@@ -83,7 +83,7 @@
       </div>
 
 
-      <button class="button is-success has-text-white" value="Send Mail" (click)="signToCup(NazovInput.value)">
+      <button class="button is-success has-text-white" value="Send Mail" (click)="signToCup(NazovInput.value, ligaSelect.value)">
         Prihlásiť do súťaže
       </button>
 

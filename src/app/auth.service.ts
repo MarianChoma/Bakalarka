@@ -65,8 +65,8 @@ export class AuthService {
       },
       observe: 'body'
     }).pipe(
-      tap((res: any) => {
-        this.setAccessToken(res.headers.get('x-access-token'));
+      tap((res:any) => {
+        this.setAccessToken(res.accessToken);
       })
     )
   }

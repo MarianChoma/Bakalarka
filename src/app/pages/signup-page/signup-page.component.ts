@@ -17,7 +17,7 @@ export class SignupPageComponent implements OnInit {
   }
 
   onSignupButtonClick(email: string, password: string, repeatedPassword: string) {
-    if (password === repeatedPassword) {
+    if (password === repeatedPassword && password!=="" && email!=="") {
       this.authService.signup(email, password).subscribe((res: HttpResponse<any>) => {
         console.log(res);
       });
@@ -25,7 +25,5 @@ export class SignupPageComponent implements OnInit {
     } else {
       document.getElementById("errorMessage").innerHTML = "Nesprávne heslo";
     }
-
   }
-
 }

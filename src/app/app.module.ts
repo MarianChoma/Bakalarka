@@ -32,7 +32,8 @@ import { TimerComponent } from './countdown/timer/timer.component';
         FormsModule
     ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: WebReqInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: WebReqInterceptor, multi: true },
+    TimerComponent
   ],
   bootstrap: [AppComponent]
 })

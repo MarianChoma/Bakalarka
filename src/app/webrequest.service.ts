@@ -50,9 +50,10 @@ export class WebrequestService {
   }
 
 
-  sigUpTeamsToCup(nazov: string) {
+  sigUpTeamsToCup(nazov: string, liga: string) {
     return this.http.patch(`${this.ROOT_URL}/teams`, {
-      "nazov": nazov
+      "nazov": nazov,
+      "liga": liga,
     })
   }
 }
