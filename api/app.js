@@ -8,8 +8,12 @@ global.document = {
     documentElement: {
         style: {}
     },
-    getElementsByTagName: function() { return []; },
-    createElement: function() { return {}; }
+    getElementsByTagName: function () {
+        return [];
+    },
+    createElement: function () {
+        return {};
+    }
 };
 global.navigator = {
     userAgent: 'nodejs',
@@ -19,6 +23,7 @@ global.L = require('leaflet');
 
 const app = express();
 const {User} = require('./db/models/user.model');
+const FootballMatch = require('./db/models/footballmatch.model');
 const SomeModel = require("./db/models/teams.model");
 const jwt = require('jsonwebtoken');
 const {mongoose} = require('./db/mongoose');
@@ -250,50 +255,72 @@ app.get('/teams/cup', (req, res) => {
     })
 })
 
-app.get('/teams/draw',(req,res)=>{
+app.get('/teams/draw', (req, res) => {
     SomeModel.find({
         prihlasenie: true
-    }).then(teams=>{
+    }).then(teams => {
         let powerOfTwo = 2;
         let i = 1;
-        let teamsInCup=[];
-        let waitingTeams=[];
+        let teamsInCup = [];
 
-        const count=teams.length
-
-
-        // const duplicates=teams.filter((t1, index, array)=>{
-        //     return array.some(t2=> {
-        //         if(t1!==t2){
-        //             return  t2.liga===t1.liga
-        //         }
-        //     })
-        // })
-
-
-        //console.log(duplicates)
-        teams.sort((t1,t2)=>{return compareTeamLeague(t1,t2)})
+        const count = teams.length
+        //console.time('Function #1');
+        //teams=quickSort(teams);
+        teams.sort((t1, t2) => {
+            return compareTeamLeague(t1, t2)
+        })
 
         while (count >= powerOfTwo) {
             i++;
             powerOfTwo = Math.pow(2, i);
         }
 
-        const half=powerOfTwo-count
-        for(let i=count-1; i>half-1;i--){
-            let sameLeague=teams.filter(t=>{
-                return teams[i].liga===t.liga;
+        const half = powerOfTwo - count
+        for (let i = count - 1; i > half - 1; i--) {
+            let sameLeague = teams.filter(t => {
+                return teams[i].liga === t.liga;
             })
-            let team=sameLeague[Math.floor(Math.random()*sameLeague.length)];
+            let team = sameLeague[Math.floor(Math.random() * sameLeague.length)];
             teamsInCup.push(team);
-            teams.splice(teams.indexOf(team, half-1),1);
+            teams.splice(teams.indexOf(team), 1);
         }
-        //console.log(teamsDistance(teamsInCup[1], teamsInCup[0]))
+
+        const footballMatch = [];
+        while (teamsInCup.length !== 0) {
+            if(teamsInCup.length===2){
+
+                footballMatch.push({
+                    home: teamsInCup[0],
+                    host: teamsInCup[1]
+                })
+                teamsInCup=[];
+                break;
+            }
+            let randomTeam = teamsInCup[Math.floor(Math.random() * (teamsInCup.length) / 2)]
+            let distanceArray = []
+            for (let j = teamsInCup.length / 2; j < teamsInCup.length; j++) {
+                console.log(teamsInCup[j].nazov+' vs ' + randomTeam.nazov)
+                //console.log(randomTeam)
+                let distance = teamsDistance(randomTeam, teamsInCup[j])
+
+                distanceArray.push(parseInt(distance))
+                if (j === teamsInCup.length - 1) {
+                    let min = Math.min.apply(null, distanceArray)
+                    let index= distanceArray.indexOf(min)
+                    footballMatch.push({
+                        home: randomTeam,
+                        host: teamsInCup[((teamsInCup.length) / 2) + index]
+                    })
+                    teamsInCup.splice((teamsInCup.length / 2)+index, 1);
+                    teamsInCup.splice(teamsInCup.indexOf(randomTeam),1);
+                }
+            }
+        }
 
         res.send({
             count: count,
-            teamsInCup: teamsInCup,
             waitingTeams: teams,
+            footballMatch: footballMatch
         })
     })
 })
@@ -307,56 +334,81 @@ app.listen(3000, () => {
 });
 
 
-function compareTeamLeague(team1,team2){
+function compareTeamLeague(team1, team2) {
     let ligue1, ligue2;
-    switch (team1.liga){
+    switch (team1.liga) {
         case "3. liga":
-            ligue1=5;
-        break;
-        case "4. liga":
-            ligue1=4;
-            break;
-        case "5. liga":
-            ligue1= 3;
-            break;
-        case "1. trieda":
-            ligue1=2;
-            break;
-        case "2. trieda":
-            ligue1=1;
-            break;
-    }
-    switch (team2.liga){
-        case "3. liga":
-            ligue2=5;
+            ligue1 = 5;
             break;
         case "4. liga":
-            ligue2=4;
+            ligue1 = 4;
             break;
         case "5. liga":
-            ligue2= 3;
+            ligue1 = 3;
             break;
         case "1. trieda":
-            ligue2=2;
+            ligue1 = 2;
             break;
         case "2. trieda":
-            ligue2=1;
+            ligue1 = 1;
             break;
     }
-    return ligue2-ligue1;
+    switch (team2.liga) {
+        case "3. liga":
+            ligue2 = 5;
+            break;
+        case "4. liga":
+            ligue2 = 4;
+            break;
+        case "5. liga":
+            ligue2 = 3;
+            break;
+        case "1. trieda":
+            ligue2 = 2;
+            break;
+        case "2. trieda":
+            ligue2 = 1;
+            break;
+    }
+    //return ligue2<ligue1;
+    return ligue2 - ligue1;
 }
 
-function teamsDistance(team1,team2)
-{
-    const from= new L.LatLng(team1.latitude,team1.longitude)
-    const to= new L.LatLng(team2.latitude,team2.longitude)
+function teamsDistance(team1, team2) {
+    const from = new L.LatLng(team1.latitude, team1.longitude)
+    const to = new L.LatLng(team2.latitude, team2.longitude)
 
     return getDistance(from, to);
 }
 
-function getDistance(from, to)
-{
+function getDistance(from, to) {
     return (from.distanceTo(to)).toFixed(0);
+}
+
+function quickSort(arr) {
+    if (arr.length < 2) {
+        return arr;
+    }
+    const pivot = arr[Math.floor(Math.random() * arr.length)];
+
+    let left = [];
+    let right = [];
+    let equal = [];
+
+    for (let val of arr) {
+        if (compareTeamLeague(val, pivot)) {
+            left.push(val);
+        } else if (compareTeamLeague(pivot, val)) {
+            right.push(val);
+        } else {
+            equal.push(val);
+        }
+    }
+    return [
+        ...quickSort(left),
+        ...equal,
+        ...quickSort(right)
+    ];
 }
 
 

@@ -12,4 +12,8 @@ var SomeModelSchema = new Schema({
 });
 
 //Export function to create "SomeModel" model class
+SomeModelSchema.methods.getId= function (){
+    const Match = this;
+    Match._id.toString();
+}
 module.exports = mongoose.model('SomeModel', SomeModelSchema );
