@@ -65,6 +65,7 @@ export class MainPageComponent implements OnInit {
   }
 
   signToCup(team: string, liga: string) {
+
     if(this.timer["dDay"].getTime() - new  Date().getTime()>0) {
 
       const nazovUp = team.toUpperCase();

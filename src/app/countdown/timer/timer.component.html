@@ -1,7 +1,9 @@
 <div class="timer">
 
-  <div class="inner" *ngIf="daysToDday<0">
-    <h1 class="headline">Už sa nie je možné prihlásiť</h1>
+  <div class="inner" *ngIf="daysToDday < 0">
+    <div class="teams" *ngFor="let match of matches['footballMatch']">
+      <h1 class="headline">{{match.home.nazov}} <b>vs</b> {{match.host.nazov}}</h1>
+    </div>
   </div>
   <div class="inner" *ngIf="daysToDday>=0">
     <h1 class="headline"> Ukončenie prihlasovania </h1>
@@ -11,7 +13,6 @@
       <li><span id="minutes"> {{minutesToDday}}m</span></li>
       <li><span id="seconds"> {{secondsToDday}}s</span></li>
     </ul>
-
   </div>
 
 </div>
