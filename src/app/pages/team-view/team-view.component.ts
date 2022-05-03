@@ -16,12 +16,12 @@ export class TeamViewComponent implements OnInit {
    this.webRequest.get('teams/cup').subscribe(list=>{
     if(list["team"].length!==0){
        this.lists=list["team"]
+      console.log(list["size"])
      }
-    else{
-      this.lists=[]
-     }
+    // else{
+    //   this.lists=[]
+    //  }
    })
-
   }
 
 }

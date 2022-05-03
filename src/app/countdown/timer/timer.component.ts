@@ -29,7 +29,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
   async drawTeam(){
     if (this.timeDifference < 0) {
-      this.matches= await this.webRequest.get('teams/draw').toPromise()
+      this.matches= await this.webRequest.post('teams/draw', {
+        time:this.timeDifference
+      }).toPromise()
     }
   }
 
