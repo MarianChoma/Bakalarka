@@ -17,5 +17,8 @@
     "leaflet": "^1.7.1",
     "lodash": "^4.17.21",
     "mongoose": "^6.0.12"
+  },
+  "devDependencies": {
+    "mongodb": "^4.5.0"
   }
 }

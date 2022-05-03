@@ -4,17 +4,23 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const FootballMatch = new Schema({
-    team1:{
-        type: Schema.Types.ObjectId,
-        ref: 'SomeModel'
+    home:{
+        teamId:{
+            type: Schema.Types.ObjectId,
+            ref: 'SomeModel'
+        },
+        nazov: String,
+        liga: String
     },
-    team2:{
-        type: Schema.Types.ObjectId,
-        ref: 'SomeModel'
+    host:{
+        teamId:{
+            type: Schema.Types.ObjectId,
+            ref: 'SomeModel'
+        },
+        nazov: String,
+        liga: String
     }
-
 
 });
 
-//Export function to create "SomeModel" model class
 module.exports = mongoose.model('FootballMatch', FootballMatch );

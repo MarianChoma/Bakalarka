@@ -27,6 +27,7 @@ const FootballMatch = require('./db/models/footballmatch.model');
 const SomeModel = require("./db/models/teams.model");
 const jwt = require('jsonwebtoken');
 const {mongoose} = require('./db/mongoose');
+const ObjectId = require('mongodb').ObjectID;
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
@@ -204,7 +205,7 @@ app.post('/users/email', (req, res) => {
 /**
  * Get all teams in database
  */
-app.get('/teams', (req, res) => {
+app.get('/teams', authenticate, (req, res) => {
 
     SomeModel.find({}).then((teams) => {
         res.send(teams);
@@ -250,81 +251,114 @@ app.get('/teams/cup', (req, res) => {
         prihlasenie: true
     }).then((teams) => {
         res.send({
-            team: teams
+            team: teams,
+            size: teams.length
         });
     })
 })
 
-app.get('/teams/draw', (req, res) => {
-    SomeModel.find({
-        prihlasenie: true
-    }).then(teams => {
-        let powerOfTwo = 2;
-        let i = 1;
-        let teamsInCup = [];
+app.post('/teams/draw', (req, res) => {
+    /*FootballMatch.deleteMany({}, (e)=>{
+        console.log(e)
+    });*/
 
-        const count = teams.length
-        //console.time('Function #1');
-        //teams=quickSort(teams);
-        teams.sort((t1, t2) => {
-            return compareTeamLeague(t1, t2)
-        })
+    FootballMatch.find({}).then(match => {
+        if (req.body.time < 0 && match.length <= 0) {
+            console.log("zrebovanie")
+            SomeModel.find({
+                prihlasenie: true
+            }).then(teams => {
 
-        while (count >= powerOfTwo) {
-            i++;
-            powerOfTwo = Math.pow(2, i);
-        }
+                let powerOfTwo = 2;
+                let i = 1;
+                let teamsInCup = [];
 
-        const half = powerOfTwo - count
-        for (let i = count - 1; i > half - 1; i--) {
-            let sameLeague = teams.filter(t => {
-                return teams[i].liga === t.liga;
-            })
-            let team = sameLeague[Math.floor(Math.random() * sameLeague.length)];
-            teamsInCup.push(team);
-            teams.splice(teams.indexOf(team), 1);
-        }
-
-        const footballMatch = [];
-        while (teamsInCup.length !== 0) {
-            if(teamsInCup.length===2){
-
-                footballMatch.push({
-                    home: teamsInCup[0],
-                    host: teamsInCup[1]
+                const count = teams.length
+                //console.time('Function #1');
+                //teams=quickSort(teams);
+                teams.sort((t1, t2) => {
+                    return compareTeamLeague(t1, t2)
                 })
-                teamsInCup=[];
-                break;
-            }
-            let randomTeam = teamsInCup[Math.floor(Math.random() * (teamsInCup.length) / 2)]
-            let distanceArray = []
-            for (let j = teamsInCup.length / 2; j < teamsInCup.length; j++) {
-                console.log(teamsInCup[j].nazov+' vs ' + randomTeam.nazov)
-                //console.log(randomTeam)
-                let distance = teamsDistance(randomTeam, teamsInCup[j])
 
-                distanceArray.push(parseInt(distance))
-                if (j === teamsInCup.length - 1) {
-                    let min = Math.min.apply(null, distanceArray)
-                    let index= distanceArray.indexOf(min)
-                    footballMatch.push({
-                        home: randomTeam,
-                        host: teamsInCup[((teamsInCup.length) / 2) + index]
-                    })
-                    teamsInCup.splice((teamsInCup.length / 2)+index, 1);
-                    teamsInCup.splice(teamsInCup.indexOf(randomTeam),1);
+                while (count >= powerOfTwo) {
+                    i++;
+                    powerOfTwo = Math.pow(2, i);
                 }
-            }
-        }
 
+                const half = powerOfTwo - count
+                for (let i = count - 1; i > half - 1; i--) {
+                    let sameLeague = teams.filter(t => {
+                        return teams[i].liga === t.liga;
+                    })
+                    let team = sameLeague[Math.floor(Math.random() * sameLeague.length)];
+                    teamsInCup.push(team);
+                    teams.splice(teams.indexOf(team), 1);
+                }
+
+                while (teamsInCup.length !== 0) {
+                    if (teamsInCup.length === 2) {
+                        FootballMatch.insertMany([{
+                            home: {
+                                teamId: teamsInCup[0]._id,
+                                nazov: teamsInCup[0].nazov,
+                                liga: teamsInCup[0].liga
+                            },
+                            host: {
+                                teamId: teamsInCup[1]._id,
+                                nazov: teamsInCup[1].nazov,
+                                liga: teamsInCup[1].liga
+                            }
+                        }])
+                        teamsInCup = [];
+                        break;
+                    }
+                    let randomTeam = teamsInCup[Math.floor(Math.random() * (teamsInCup.length) / 2)]
+                    let distanceArray = []
+                    for (let j = teamsInCup.length / 2; j < teamsInCup.length; j++) {
+                        let distance = teamsDistance(randomTeam, teamsInCup[j])
+
+                        distanceArray.push(parseInt(distance))
+                        if (j === teamsInCup.length - 1) {
+                            let min = Math.min.apply(null, distanceArray)
+                            let index = distanceArray.indexOf(min)
+                            FootballMatch.insertMany([{
+                                home: {
+                                    teamId: randomTeam._id,
+                                    nazov: randomTeam.nazov,
+                                    liga: randomTeam.liga
+                                },
+                                host: {
+                                    teamId: teamsInCup[((teamsInCup.length) / 2) + index]._id,
+                                    nazov: teamsInCup[((teamsInCup.length) / 2) + index].nazov,
+                                    liga: teamsInCup[((teamsInCup.length) / 2) + index].liga
+                                }
+                            }])
+                            teamsInCup.splice((teamsInCup.length / 2) + index, 1);
+                            teamsInCup.splice(teamsInCup.indexOf(randomTeam), 1);
+                        }
+                    }
+                }
+                /* FootballMatch.deleteMany({}, (e)=>{
+                      console.log(e)
+                  });*/
+            })
+        }
         res.send({
-            count: count,
-            waitingTeams: teams,
-            footballMatch: footballMatch
+            draw: "completed"
         })
     })
 })
 
+app.get('/football-matches', (req, res) => {
+   /* FootballMatch.deleteMany({}, (e)=>{
+        console.log(e)
+    });*/
+    FootballMatch.find({}).then(match => {
+        res.send({
+            matches: match
+        })
+    })
+})
 
 app.get('/home', authenticate, (req, res) => {
 })
