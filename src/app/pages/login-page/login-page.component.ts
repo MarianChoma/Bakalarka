@@ -18,10 +18,12 @@ export class LoginPageComponent implements OnInit {
 
   onLoginButtonClick(email: string, password: string) {
     this.authService.login(email, password).subscribe((res: HttpResponse<any>) =>{
-      if(res.status===200){
+      if(email==="admin@admin.com" && res.status===200){
+        this.router.navigate(['/admin']);
+      }
+      else if(res.status===200){
         this.router.navigate(['/home/info']);
       }
-      console.log(res);
     });
   }
   }

@@ -18,9 +18,9 @@ export class TeamViewComponent implements OnInit {
        this.lists=list["team"]
       console.log(list["size"])
      }
-    // else{
-    //   this.lists=[]
-    //  }
+    else{
+      this.lists=[]
+     }
    })
   }
 

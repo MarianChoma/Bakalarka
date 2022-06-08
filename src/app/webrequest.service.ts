@@ -56,4 +56,10 @@ export class WebrequestService {
       "liga": liga,
     })
   }
+
+  submitMatch(matches){
+    return this.http.post(`${this.ROOT_URL}/teams/proceed`,{
+      teams:matches
+    }).toPromise();
+  }
 }

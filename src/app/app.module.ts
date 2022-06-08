@@ -14,6 +14,7 @@ import { TeamInCupViewComponent } from './pages/team-in-cup-view/team-in-cup-vie
 import {FormsModule} from "@angular/forms";
 import { TimerComponent } from './countdown/timer/timer.component';
 import { FootballmatchPageComponent } from './pages/footballmatch-page/footballmatch-page.component';
+import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { FootballmatchPageComponent } from './pages/footballmatch-page/footballm
     TeamInCupViewComponent,
     TimerComponent,
     FootballmatchPageComponent,
+    AdminPageComponent,
 
   ],
     imports: [

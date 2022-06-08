@@ -11,13 +11,12 @@ import {WebrequestService} from "../../webrequest.service";
 })
 export class TimerComponent implements OnInit, OnDestroy {
   private subscription: Subscription;
-  private dDay = new Date('04 01 2022 23:39:20');
+  private dDay = new Date('04 05 2022 22:39:20');
   private timeDifference;
   public secondsToDday;
   public minutesToDday;
   public hoursToDday;
   public daysToDday;
-  public matches;
 
   constructor(private webRequest: WebrequestService) {
   }
@@ -25,14 +24,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   async getTimeDifference() {
     this.timeDifference = this.dDay.getTime() - new Date().getTime();
     this.allocateTimeUnits(this.timeDifference);
-    console.log(this.timeDifference)
-  }
-  async drawTeam(){
-    if (this.timeDifference < 0) {
-      this.matches= await this.webRequest.post('teams/draw', {
-        time:this.timeDifference
-      }).toPromise()
-    }
   }
 
   private allocateTimeUnits(timeDifference) {
@@ -47,7 +38,6 @@ export class TimerComponent implements OnInit, OnDestroy {
       .subscribe(x => {
         this.getTimeDifference();
         if(this.timeDifference < 0){
-          this.drawTeam();
           this.subscription.unsubscribe();
         }
       });

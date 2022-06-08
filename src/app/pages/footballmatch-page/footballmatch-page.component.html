@@ -1,3 +1,53 @@
-<div class="container" *ngFor="let match of footballMatches">
-  <h2>{{match["home"]["nazov"]}} vs {{match["host"]["nazov"]}}</h2>
+<div class="container is-centered">
+  <header>
+    <h1 class="main title is-center has-text-centered"><b>Zápasy</b></h1>
+  </header>
+
+  <table *ngIf="matchResults.length!=0" class="table is-striped is-bordered has-text-centered is-centered">
+    <thead class="thead">
+    <tr>
+      <th colspan="5"> Výsledky Zápasov</th>
+    </tr>
+    <tr>
+      <th>Kolo</th>
+      <th>Prvý tím</th>
+      <th>Druhý tím</th>
+      <th colspan="2">Výsledok</th>
+    </tr>
+    </thead>
+    <tbody class="results" *ngFor="let result of matchResults">
+    <tr>
+      <td>{{result["round"]}}</td>
+      <td>{{result["team1"]}}</td>
+      <td>{{result["team2"]}}</td>
+      <td>{{result["score1"]}}</td>
+      <td>{{result["score2"]}}</td>
+    </tr>
+    </tbody>
+  </table>
+  <table *ngIf="footballMatches.length!=0" class="table is-centered ">
+    <thead class="thead">
+    <tr>
+      <th class="subtitle has-text-centered" colspan="6">Prebiehajúce kolo</th>
+    </tr>
+    <tr>
+      <th>Domáci tím</th>
+      <th>Liga</th>
+      <th>Hosťujúci tím</th>
+      <th>Liga</th>
+    </tr>
+    </thead>
+    <tbody class="tbody" *ngFor="let match of footballMatches">
+
+    <tr>
+      <td>{{match["home"]["nazov"]}}</td>
+      <td>{{match["home"]["liga"]}}</td>
+      <td>{{match["host"]["nazov"]}}</td>
+      <td>{{match["host"]["liga"]}}</td>
+    </tr>
+    </tbody>
+  </table>
+  <div *ngIf="winnerTeams && winnerTeams.length===1" class="title winner-team has-text-centered">
+    <h1>Víťaz pohára: {{winnerTeams[0]["nazov"]}}</h1>
+  </div>
 </div>

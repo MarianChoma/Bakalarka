@@ -26,9 +26,7 @@ export class MainPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.auth('home').subscribe((e) => {
-      console.log(e);
-    });
+    this.authService.auth('home').toPromise();
     this.inputEmail();
   }
 
@@ -77,11 +75,11 @@ export class MainPageComponent implements OnInit {
           let errormessage = document.getElementById("errormessage")
           if (error.status === 404) {
             errormessage.innerHTML = "nesprávny názov týmu alebo ligy"
-            document.getElementById("error-container").appendChild(errormessage);
+            document.getElementById("error-container").appendChild(errormessage)
           } else {
             this.onSubmit()
             errormessage.innerHTML = ''
-            document.getElementById("error-container").appendChild(errormessage);
+            document.getElementById("error-container").appendChild(errormessage)
           }
         })
     }
@@ -95,8 +93,7 @@ export class MainPageComponent implements OnInit {
     const id = localStorage.getItem("user-id");
     this.webRequest.getEmail(id).subscribe((email) => {
       document.getElementById("email").setAttribute('placeholder', `${email["email"]}`);
-      (<HTMLInputElement>document.getElementById('email')).value = email["email"];
-
+      (<HTMLInputElement>document.getElementById('email')).value = email["email"]
     });
   }
 }

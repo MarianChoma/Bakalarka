@@ -1,14 +1,11 @@
-table{
+table, .result{
   width: 100%;
   margin: 50px auto 0;
 }
-.winner-team{
-  border: 4px solid springgreen;
-  width: 40%;
-  padding: 15px;
+.submit-button{
   margin-left: 50%;
   transform: translateX(-50%);
-  border-radius: 10px;
+  text-align: center;
 }
 .main{
   margin-top: 10px;
