@@ -10,7 +10,8 @@ const FootballMatch = new Schema({
             ref: 'SomeModel'
         },
         nazov: String,
-        liga: String
+        liga: String,
+        score: "number"
     },
     host:{
         teamId:{
@@ -18,7 +19,8 @@ const FootballMatch = new Schema({
             ref: 'SomeModel'
         },
         nazov: String,
-        liga: String
+        liga: String,
+        score: "number"
     }
 
 });

@@ -25,11 +25,12 @@ const app = express();
 const {User} = require('./db/models/user.model');
 const FootballMatch = require('./db/models/footballmatch.model');
 const SomeModel = require("./db/models/teams.model");
+const MatchResults= require("./db/models/resultsOfFootballMatches.model")
 const jwt = require('jsonwebtoken');
 const {mongoose} = require('./db/mongoose');
-const ObjectId = require('mongodb').ObjectID;
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
+let round=0;
 
 //CORS header middleware
 app.use(function (req, res, next) {
@@ -205,7 +206,7 @@ app.post('/users/email', (req, res) => {
 /**
  * Get all teams in database
  */
-app.get('/teams', authenticate, (req, res) => {
+app.get('/teams', (req, res) => {
 
     SomeModel.find({}).then((teams) => {
         res.send(teams);
@@ -257,90 +258,133 @@ app.get('/teams/cup', (req, res) => {
     })
 })
 
-app.post('/teams/draw', (req, res) => {
-    /*FootballMatch.deleteMany({}, (e)=>{
+app.delete('/teams/delete',(req,res)=>{
+    FootballMatch.deleteMany({}, (e)=>{
         console.log(e)
-    });*/
+    });
+    res.sendStatus(204)
+})
 
+app.delete('/matchResults', (req,res)=>{
+    round=0
+    MatchResults.deleteMany({}).then(result => {
+        console.log(result)
+    })
+    res.sendStatus(204)
+})
+
+app.post('/teams/draw', (req, res) => {
     FootballMatch.find({}).then(match => {
         if (req.body.time < 0 && match.length <= 0) {
-            console.log("zrebovanie")
             SomeModel.find({
                 prihlasenie: true
             }).then(teams => {
-
                 let powerOfTwo = 2;
                 let i = 1;
                 let teamsInCup = [];
 
-                const count = teams.length
+                const count = teams.length;
                 //console.time('Function #1');
                 //teams=quickSort(teams);
                 teams.sort((t1, t2) => {
                     return compareTeamLeague(t1, t2)
                 })
 
-                while (count >= powerOfTwo) {
+                while (count > powerOfTwo) {
                     i++;
                     powerOfTwo = Math.pow(2, i);
                 }
 
-                const half = powerOfTwo - count
-                for (let i = count - 1; i > half - 1; i--) {
+                const startIndex = powerOfTwo - count;
+                for (let i = count - 1; i > startIndex - 1; i--) {
                     let sameLeague = teams.filter(t => {
                         return teams[i].liga === t.liga;
                     })
-                    let team = sameLeague[Math.floor(Math.random() * sameLeague.length)];
-                    teamsInCup.push(team);
-                    teams.splice(teams.indexOf(team), 1);
-                }
 
+                    const countTeamInCup=count-startIndex
+
+                     if(countTeamInCup-teamsInCup.length>=sameLeague.length){
+                         teamsInCup.push(...sameLeague)
+                         teams.splice(i-sameLeague.length+1,sameLeague.length)
+                         i=i-sameLeague.length+1
+                     }
+                     else{
+                        let team = sameLeague[Math.floor(Math.random() * sameLeague.length)];
+                        teamsInCup.push(team);
+                        teams.splice(teams.indexOf(team),1)
+                    }
+                }
+                let allDistances=[];
                 while (teamsInCup.length !== 0) {
+                    console.log(teamsInCup)
                     if (teamsInCup.length === 2) {
                         FootballMatch.insertMany([{
                             home: {
                                 teamId: teamsInCup[0]._id,
                                 nazov: teamsInCup[0].nazov,
-                                liga: teamsInCup[0].liga
+                                liga: teamsInCup[0].liga,
+                                score: null
                             },
                             host: {
                                 teamId: teamsInCup[1]._id,
                                 nazov: teamsInCup[1].nazov,
-                                liga: teamsInCup[1].liga
+                                liga: teamsInCup[1].liga,
+                                score: null
                             }
                         }])
                         teamsInCup = [];
                         break;
                     }
-                    let randomTeam = teamsInCup[Math.floor(Math.random() * (teamsInCup.length) / 2)]
-                    let distanceArray = []
-                    for (let j = teamsInCup.length / 2; j < teamsInCup.length; j++) {
-                        let distance = teamsDistance(randomTeam, teamsInCup[j])
+                    allDistances=[]
 
-                        distanceArray.push(parseInt(distance))
-                        if (j === teamsInCup.length - 1) {
-                            let min = Math.min.apply(null, distanceArray)
-                            let index = distanceArray.indexOf(min)
-                            FootballMatch.insertMany([{
-                                home: {
-                                    teamId: randomTeam._id,
-                                    nazov: randomTeam.nazov,
-                                    liga: randomTeam.liga
-                                },
-                                host: {
-                                    teamId: teamsInCup[((teamsInCup.length) / 2) + index]._id,
-                                    nazov: teamsInCup[((teamsInCup.length) / 2) + index].nazov,
-                                    liga: teamsInCup[((teamsInCup.length) / 2) + index].liga
-                                }
-                            }])
-                            teamsInCup.splice((teamsInCup.length / 2) + index, 1);
-                            teamsInCup.splice(teamsInCup.indexOf(randomTeam), 1);
+                    for(let i=0; i< teamsInCup.length / 2; i++) {
+                        let teamOfFirstHalf = teamsInCup[i]
+                        let distanceArray = []
+                        for (let j = teamsInCup.length / 2; j < teamsInCup.length; j++) {
+                            let distance = teamsDistance(teamOfFirstHalf, teamsInCup[j])
+                            distanceArray.push(parseInt(distance))
+
+                            if (j === teamsInCup.length - 1) {
+                                allDistances.push(distanceArray)
+                            }
                         }
                     }
+                    let min = allDistances[0].reduce((partialSum, a) => partialSum + a, 0);
+                    let indexOfMinDistanceArray=0
+
+                    let minValueOfDistance = Math.min.apply(null, allDistances[0])
+                    let index=allDistances[0].indexOf(minValueOfDistance)
+                    let k=1
+                    for( k; k<allDistances.length;k++){
+                        let current= allDistances[k].reduce((partialSum, a) => partialSum + a, 0);
+                        if(current<min){
+                             indexOfMinDistanceArray=k;
+                             min=current;
+                             minValueOfDistance = Math.min.apply(null, allDistances[k])
+                             index = allDistances[k].indexOf(minValueOfDistance)
+                        }
+                    }
+                    console.log(allDistances)
+                    console.log(indexOfMinDistanceArray)
+                    console.log(((teamsInCup.length) / 2) + index)
+                    FootballMatch.insertMany([{
+                        home: {
+                            teamId: teamsInCup[indexOfMinDistanceArray]._id,
+                            nazov: teamsInCup[indexOfMinDistanceArray].nazov,
+                            liga: teamsInCup[indexOfMinDistanceArray].liga,
+                            score: null
+                        },
+                        host: {
+                            teamId: teamsInCup[((teamsInCup.length) / 2) + index]._id,
+                            nazov: teamsInCup[((teamsInCup.length) / 2) + index].nazov,
+                            liga: teamsInCup[((teamsInCup.length) / 2) + index].liga,
+                            score: null
+                        }
+                    }])
+                    teamsInCup.splice((teamsInCup.length / 2) + index, 1);
+                    teamsInCup.splice(indexOfMinDistanceArray, 1);
                 }
-                /* FootballMatch.deleteMany({}, (e)=>{
-                      console.log(e)
-                  });*/
+                //console.timeEnd('Function #1')
             })
         }
         res.send({
@@ -349,15 +393,53 @@ app.post('/teams/draw', (req, res) => {
     })
 })
 
-app.get('/football-matches', (req, res) => {
-   /* FootballMatch.deleteMany({}, (e)=>{
+app.post('/teams/proceed', (req,res)=>{
+    round++;
+    req.body.teams.forEach(team=>{
+        let loser= team[0].score<team[1].score ? team[0] : team[1];
+
+        MatchResults.insertMany([{
+            round: round,
+            team1: team[0].nazov,
+            team2: team[1].nazov,
+            score1: team[0].score,
+            score2: team[1].score
+        }]);
+        SomeModel.findOneAndUpdate({
+            _id:loser.teamId}, {
+            $set:{
+                prihlasenie: false
+            }
+        }).then(console.log)
+    })
+
+    FootballMatch.deleteMany({}, (e)=>{
         console.log(e)
-    });*/
+    })
+})
+
+app.get('/matchResults', (req, res) => {
+    MatchResults.find({}).then(result => {
+        res.send({
+            results: result
+        })
+    })
+})
+
+app.get('/football-matches', (req, res) => {
     FootballMatch.find({}).then(match => {
         res.send({
             matches: match
         })
     })
+    // SomeModel.updateMany({},{
+    //         $set: {
+    //             prihlasenie: true
+    //         }
+    //     }
+    // ).then(
+    //     res.sendStatus(201)/*send({message: 'Updated'})*/
+    // )
 })
 
 app.get('/home', authenticate, (req, res) => {
